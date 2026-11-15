@@ -1,0 +1,72 @@
+<app-page-header title="הבקרות שלי" [subtitle]="subtitle()">
+  <a matButton="tonal" routerLink="/ai"><mat-icon>auto_awesome</mat-icon>בקרה בשפה חופשית</a>
+  <a matButton="filled" routerLink="/controls/new"><mat-icon>add</mat-icon>בקרה חדשה</a>
+</app-page-header>
+
+<mat-form-field class="search" appearance="outline" subscriptSizing="dynamic">
+  <mat-label>חיפוש בקרה</mat-label>
+  <mat-icon matPrefix>search</mat-icon>
+  <input matInput type="search" [value]="search()" (input)="search.set(inputValue($event))" placeholder="שם או תיאור" />
+  @if (search()) {
+    <button matIconButton matSuffix type="button" aria-label="ניקוי החיפוש" (click)="clearSearch()">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+</mat-form-field>
+
+<app-loading-bar [active]="loading()" label="טוען בקרות" />
+
+<!-- One region for the list and its empty / error states: a state replaces the cards in place, never pushes them. -->
+<section class="results">
+  @if (failed()) {
+    <app-empty-state icon="cloud_off" title="לא ניתן לטעון את הבקרות" message="בדקו את החיבור לשרת ונסו שוב.">
+      <button matButton="filled" type="button" (click)="retry()">נסו שוב</button>
+    </app-empty-state>
+  } @else if (!loading() && controls().length === 0) {
+    @if (search()) {
+      <app-empty-state icon="search_off" title="לא נמצאו בקרות" [message]="'אין בקרות שמתאימות לחיפוש &quot;' + search() + '&quot;.'" />
+    } @else {
+      <app-empty-state icon="fact_check" title="עדיין אין בקרות" message="בקרה מאתרת רשומות שאינן עומדות בכללים העסקיים. צרו את הבקרה הראשונה.">
+        <a matButton="filled" routerLink="/controls/new">יצירת בקרה</a>
+      </app-empty-state>
+    }
+  } @else {
+    <ul class="cards" aria-label="רשימת הבקרות" [class.busy]="loading()">
+      @for (control of controls(); track control.id) {
+        <li class="card">
+          <div class="card-head">
+            <h2>
+              <a [routerLink]="['/controls', control.id, 'edit']">{{ control.name }}</a>
+            </h2>
+            <span class="entity">{{ control.rootEntityName }}</span>
+          </div>
+
+          @if (control.description) {
+            <p class="description">{{ control.description }}</p>
+          }
+
+          <div class="status">
+            @if (control.lastRun; as run) {
+              @if (run.status === 'failed') {
+                <span class="badge failed" [matTooltip]="run.error ?? ''"><mat-icon>error</mat-icon>הריצה האחרונה נכשלה</span>
+              } @else if (run.violationCount === 0) {
+                <span class="badge ok"><mat-icon>check_circle</mat-icon>לא נמצאו חריגות</span>
+              } @else {
+                <span class="badge violations"><mat-icon>warning</mat-icon>{{ run.violationCount }} חריגות</span>
+              }
+              <span class="when">ריצה אחרונה: {{ run.runAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            } @else {
+              <span class="badge never"><mat-icon>schedule</mat-icon>טרם הורצה</span>
+            }
+          </div>
+
+          <div class="actions">
+            <button matButton="filled" type="button" (click)="run(control)"><mat-icon>play_arrow</mat-icon>הרצה</button>
+            <a matIconButton [routerLink]="['/controls', control.id, 'edit']" aria-label="עריכה" matTooltip="עריכה"><mat-icon>edit</mat-icon></a>
+            <button matIconButton type="button" (click)="delete(control)" aria-label="מחיקה" matTooltip="מחיקה"><mat-icon>delete</mat-icon></button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

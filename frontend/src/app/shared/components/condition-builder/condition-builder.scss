@@ -1,0 +1,215 @@
+// Shared by condition-group, condition-row and related-row.
+:host {
+  display: block;
+  container-type: inline-size; // rows lay out by the width they get, not by the screen's
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+}
+
+.group.nested {
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+  border-inline-start: 3px solid var(--mat-sys-outline-variant);
+}
+
+.group.invalid,
+.row.invalid {
+  border-inline-start-color: var(--mat-sys-error);
+}
+
+.group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.logic {
+  --mat-button-toggle-height: 32px;
+  --mat-button-toggle-label-text-size: 0.8125rem;
+}
+
+.logic-text {
+  font: var(--mat-sys-title-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.joiner {
+  display: inline-block;
+  margin-block-end: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font: var(--mat-sys-label-medium);
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+  padding: 4px 0;
+}
+
+.related {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--mat-sys-outline-variant);
+}
+
+.add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+// One condition: field · operator · value · remove - the boxes always share one top line.
+// Responds to the width the row really has (container query), so a nested group stacks before the page does.
+.row {
+  display: grid;
+  // the operator column keeps room for its longest label ("בתאריך או אחרי")
+  grid-template-columns: minmax(0, 6fr) minmax(8.5rem, 3fr) minmax(0, 5fr) auto;
+  grid-template-areas: 'field operator value remove';
+  align-items: start;
+  gap: 8px 12px;
+  border-inline-start: 3px solid transparent;
+  // the red mark of an invalid condition stands apart from the boxes instead of touching them
+  padding-inline-start: 8px;
+}
+
+.row > .field {
+  grid-area: field;
+}
+
+// A yes/no field: no operator - the answer takes its place, the field keeps the width it has in every row.
+.row.yes-no {
+  grid-template-areas: 'field value value remove';
+}
+
+.row > .operator {
+  grid-area: operator;
+}
+
+.row > .value {
+  grid-area: value;
+}
+
+.row > .remove {
+  grid-area: remove;
+  // centred on the boxes at any density
+  margin-block-start: calc((var(--mat-form-field-container-height, 56px) - var(--mat-icon-button-state-layer-size, 48px)) / 2);
+}
+
+.row > .text,
+.row > .field-hint {
+  grid-column: 1 / -1;
+}
+
+.field-hint {
+  margin: -4px 0 0;
+  padding-inline: 16px; // lines up with the text inside the boxes
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// "Related records": icon · there are / there are no · which records · remove
+.row.related-head {
+  grid-template-columns: auto minmax(0, 3fr) minmax(0, 8fr) auto;
+  grid-template-areas: 'icon quantifier relation remove';
+}
+
+.row > .related-icon {
+  grid-area: icon;
+}
+
+.row > .quantifier {
+  grid-area: quantifier;
+}
+
+.row > .relation {
+  grid-area: relation;
+}
+
+.related-head > .text {
+  grid-column: 2 / -1;
+}
+
+// Narrow (a phone, or a deeply nested group): the field and its remove button on top, the rest full width below.
+@container (max-width: 560px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'field remove'
+      'operator operator'
+      'value value';
+  }
+
+  .row.yes-no {
+    grid-template-areas:
+      'field remove'
+      'value value';
+  }
+
+  .row.related-head {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'icon quantifier remove'
+      'relation relation relation';
+  }
+}
+
+.related-icon {
+  margin-block-start: calc((var(--mat-form-field-container-height, 56px) - 24px) / 2);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.text {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.text .field {
+  font-weight: 500;
+}
+
+.text .operator {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  // under the condition, lined up with the text inside its boxes (mark 3px + gap 8px + box padding 16px)
+  margin: 2px 0 0;
+  padding-inline-start: calc(3px + 8px + 12px);
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+}
+
+.error mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+// A condition read as one phrase ("גיל קטן מ-18") - its spacing comes from the wording, not from a flex gap.
+.text.phrase {
+  display: block;
+}

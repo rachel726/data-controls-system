@@ -1,0 +1,125 @@
+<app-page-header title="בקרה בשפה חופשית" subtitle="תארו במילים מה לבדוק. ההצעה תוצג לאישורכם - שום דבר לא נשמר ולא רץ לפני כן." />
+
+<section class="ask" aria-label="תיאור הבקרה">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>מה לבדוק?</mat-label>
+    <textarea
+      matInput
+      rows="3"
+      [attr.maxlength]="limits()?.maxAiTextLength"
+      [value]="store.text()"
+      (input)="store.setText(inputValue($event))"
+      (keydown)="onKeydown($event)"
+      placeholder="למשל: מצא עובדים פעילים שגילם נמוך מ-18 ומשכורתם גבוהה מ-15,000 ש״ח"
+    ></textarea>
+    <mat-hint>Ctrl+Enter לשליחה</mat-hint>
+    @if (limits(); as limits) {
+      <mat-hint align="end">{{ store.text().length }}/{{ limits.maxAiTextLength }}</mat-hint>
+    }
+  </mat-form-field>
+
+  <div class="ask-actions">
+    <mat-chip-set aria-label="דוגמאות">
+      @for (example of store.examples(); track example.text) {
+        <mat-chip (click)="useExample(example.text)" [matTooltip]="example.text" [disabled]="store.suggesting()">
+          {{ example.label }}
+        </mat-chip>
+      }
+    </mat-chip-set>
+    <button matButton="filled" type="button" (click)="store.suggest()" [disabled]="!store.canSuggest() || store.suggesting()">
+      <mat-icon>auto_awesome</mat-icon>הצעת בקרה
+    </button>
+  </div>
+</section>
+
+<app-loading-bar [active]="store.suggesting()" label="מנתח את הבקשה" />
+
+@if (store.error(); as error) {
+  <app-empty-state icon="cloud_off" title="לא התקבלה הצעה" [message]="error">
+    <button matButton="tonal" type="button" (click)="store.suggest()">נסו שוב</button>
+    <a matButton routerLink="/controls/new">הגדרה ידנית</a>
+  </app-empty-state>
+}
+
+@if (store.result(); as result) {
+  @if (!result.understood) {
+    <app-empty-state icon="help" title="לא הצלחתי להבין את הבקשה" [message]="result.explanation">
+      @if (result.unmappedTerms.length > 0) {
+        <mat-chip-set class="not-understood" aria-label="מילים שלא זוהו">
+          @for (term of result.unmappedTerms; track term) {
+            <mat-chip disabled>{{ term }}</mat-chip>
+          }
+        </mat-chip-set>
+      }
+      <a matButton="filled" routerLink="/controls/new">הגדרה ידנית</a>
+    </app-empty-state>
+  } @else {
+    <section class="review" aria-label="ההצעה לאישור">
+      <h2>ההצעה לאישורכם</h2>
+
+      <div class="understanding">
+        <h3><mat-icon aria-hidden="true">psychology</mat-icon>מה הבנתי</h3>
+        <p>{{ result.explanation }}</p>
+        @if (result.assumptions.length > 0) {
+          <h4>הנחות שהנחתי</h4>
+          <ul>
+            @for (assumption of result.assumptions; track $index) {
+              <li>{{ assumption }}</li>
+            }
+          </ul>
+        }
+        @if (result.unmappedTerms.length > 0) {
+          <h4>מונחים שלא מצאתי במבנה הנתונים</h4>
+          <mat-chip-set aria-label="מונחים שלא זוהו">
+            @for (term of result.unmappedTerms; track term) {
+              <mat-chip disabled>{{ term }}</mat-chip>
+            }
+          </mat-chip-set>
+        }
+      </div>
+
+      <app-definition-description [sentence]="result.definitionDescription" [errors]="result.validationErrors" />
+      @if (!result.isValid) {
+        <p class="invalid-note" role="alert">
+          <mat-icon aria-hidden="true">block</mat-icon>
+          ההצעה אינה תקינה ולכן לא ניתן לאשר אותה כמו שהיא. אפשר לפתוח אותה בעורך ולתקן.
+        </p>
+      }
+
+      @if (result.definition; as definition) {
+        <div class="conditions">
+          <h3>בודקים: {{ rootEntityName() }}</h3>
+          <app-condition-group [group]="definition.filter" [entityKey]="definition.rootEntity" [readonly]="true" [errorsFor]="errorsFor" />
+        </div>
+      }
+
+      <div class="details">
+        <mat-form-field appearance="outline">
+          <mat-label>שם הבקרה</mat-label>
+          <input matInput required [attr.maxlength]="limits()?.maxNameLength" [value]="store.name()" (input)="store.setName(inputValue($event))" />
+          @if (store.nameError(); as error) {
+            <mat-hint class="field-error" role="alert">{{ error }}</mat-hint>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>תיאור (לא חובה)</mat-label>
+          <textarea matInput rows="2" [value]="store.description()" (input)="store.setDescription(inputValue($event))"></textarea>
+        </mat-form-field>
+      </div>
+
+      @if (store.saveError(); as error) {
+        <p class="invalid-note" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ error }}</p>
+      }
+
+      <div class="actions">
+        <button matButton="outlined" type="button" (click)="editInEditor()"><mat-icon>edit</mat-icon>עריכה בעורך</button>
+        <button matButton="tonal" type="button" (click)="approve(false)" [disabled]="!store.canApprove()">
+          <mat-icon>save</mat-icon>אישור ושמירה
+        </button>
+        <button matButton="filled" type="button" (click)="approve(true)" [disabled]="!store.canApprove()">
+          <mat-icon>play_arrow</mat-icon>אישור, שמירה והרצה
+        </button>
+      </div>
+    </section>
+  }
+}

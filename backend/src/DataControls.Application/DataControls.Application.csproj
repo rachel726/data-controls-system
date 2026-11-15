@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Options, DI and logging abstractions; this library is only hosted by the ASP.NET Core API. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataControls.Core\DataControls.Core.csproj" />
+  </ItemGroup>
+
+</Project>

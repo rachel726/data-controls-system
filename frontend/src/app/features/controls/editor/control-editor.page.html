@@ -1,0 +1,101 @@
+<app-page-header [title]="title()" [subtitle]="status()">
+  @if (!store.loadError()) {
+    <button matButton type="button" (click)="cancel()">ביטול</button>
+    <button matButton="filled" type="button" [disabled]="!store.canSave() || !store.dirty()" (click)="save()">
+      <mat-icon>save</mat-icon>שמירה
+    </button>
+  }
+</app-page-header>
+
+<app-loading-bar [active]="store.loading() || store.saving()" [label]="store.saving() ? 'שומר' : 'טוען'" />
+
+@if (store.loadError(); as error) {
+  <app-empty-state icon="error" title="לא ניתן לפתוח את הבקרה" [message]="error">
+    <button matButton="filled" type="button" (click)="cancel()">חזרה לרשימה</button>
+  </app-empty-state>
+} @else if (!store.loading()) {
+  @if (store.fieldErrors()['form']; as formErrors) {
+    <p class="form-error" role="alert"><mat-icon>error</mat-icon>{{ formErrors[0] }}</p>
+  }
+
+  <section class="details" aria-label="פרטי הבקרה">
+    <mat-form-field appearance="outline">
+      <mat-label>שם הבקרה</mat-label>
+      <input
+        matInput
+        required
+        [attr.maxlength]="limits()?.maxNameLength"
+        [value]="store.name()"
+        (input)="store.setName(inputValue($event))"
+        placeholder="למשל: עובדים מתחת לגיל 18 עם שכר גבוה"
+      />
+      @if (store.fieldErrors()['name']; as errors) {
+        <!-- mat-error needs an Angular forms control; the state lives in signals, so a styled hint is used -->
+        <mat-hint class="field-error" role="alert">{{ errors[0] }}</mat-hint>
+      }
+      @if (limits(); as limits) {
+        <mat-hint align="end">{{ store.name().length }}/{{ limits.maxNameLength }}</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>מה בודקים?</mat-label>
+      <mat-select [value]="store.rootEntity()" (selectionChange)="changeRootEntity($event)" required>
+        @for (entity of catalog.entities(); track entity.key) {
+          <mat-option [value]="entity.key">{{ entity.displayNamePlural }}</mat-option>
+        }
+      </mat-select>
+      @if (store.rootEntity(); as key) {
+        <mat-hint>{{ catalog.entity(key)?.description }}</mat-hint>
+      } @else {
+        <mat-hint>בחרו את סוג הרשומות שהבקרה תבדוק</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="description">
+      <mat-label>תיאור (לא חובה)</mat-label>
+      <!-- grows with its text (2-6 lines) instead of hiding it behind a scrollbar -->
+      <textarea
+        matInput
+        cdkTextareaAutosize
+        cdkAutosizeMinRows="2"
+        cdkAutosizeMaxRows="6"
+        [attr.maxlength]="limits()?.maxDescriptionLength"
+        [value]="store.description()"
+        (input)="store.setDescription(inputValue($event))"
+        placeholder="מה הבקרה מאתרת ולמה זה חשוב"
+      ></textarea>
+    </mat-form-field>
+  </section>
+
+  @if (store.definition(); as definition) {
+    <section class="conditions" aria-label="תנאי הבקרה">
+      <h2>אילו {{ rootEntityName() }} ייחשבו חריגים?</h2>
+      <div class="layout">
+        <!-- the server's reading of the conditions, live: their Hebrew meaning or what is wrong -->
+        <aside class="meaning" aria-label="משמעות הבקרה">
+          <app-definition-description
+            [sentence]="store.meaning()"
+            [invalid]="store.definitionErrors().length > 0"
+            [loading]="store.check() === 'checking'"
+            [placeholder]="meaningNote()"
+          />
+        </aside>
+        <div class="builder">
+          <app-condition-group
+            [group]="definition.filter"
+            [entityKey]="definition.rootEntity"
+            [errorsFor]="errorsFor"
+            [canAddCondition]="store.conditionCount() < (limits()?.maxConditions ?? 0)"
+            (edit)="store.apply($event)"
+          />
+          @if (limits(); as limits) {
+            @if (store.conditionCount() >= limits.maxConditions) {
+              <p class="hint">הגעתם למספר התנאים המרבי ({{ limits.maxConditions }}).</p>
+            }
+          }
+        </div>
+      </div>
+    </section>
+  }
+}

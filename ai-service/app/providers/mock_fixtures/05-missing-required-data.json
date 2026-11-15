@@ -1,0 +1,32 @@
+{
+  "example": "נתוני חובה חסרים",
+  "requests": [
+    "איתור רשומות שבהן חסרים נתונים המחויבים לפי כללים עסקיים."
+  ],
+  "response": {
+    "name": "עובדים פעילים עם נתוני חובה חסרים",
+    "description": "עובדים פעילים שחסר להם דואר אלקטרוני, טלפון או שיוך למחלקה.",
+    "rootEntity": "employee",
+    "logic": "and",
+    "conditions": [
+      { "field": "isActive", "operator": "eq", "value": true }
+    ],
+    "groups": [
+      {
+        "logic": "or",
+        "conditions": [
+          { "field": "email", "operator": "isEmpty" },
+          { "field": "phone", "operator": "isEmpty" },
+          { "field": "department.name", "operator": "isEmpty" }
+        ]
+      }
+    ],
+    "explanation": "חיפשתי עובדים פעילים שחסר להם לפחות אחד מהנתונים שמוגדרים כחובה לעובד פעיל.",
+    "assumptions": [
+      "'רשומות' = עובדים - הבקשה לא ציינה סוג רשומה.",
+      "נתוני חובה = דואר אלקטרוני, טלפון ושיוך למחלקה, לפי תיאורי השדות ('שדה חובה לעובד פעיל').",
+      "הבדיקה על עובדים פעילים בלבד."
+    ],
+    "unmappedTerms": ["כללים עסקיים"]
+  }
+}

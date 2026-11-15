@@ -1,0 +1,77 @@
+<app-page-header [title]="title()" [subtitle]="subtitle()">
+  <a matButton routerLink="/controls"><mat-icon>arrow_forward</mat-icon>לרשימת הבקרות</a>
+  @if (!store.notFound()) {
+    <a matButton="tonal" [routerLink]="['/controls', id(), 'edit']"><mat-icon>edit</mat-icon>עריכה</a>
+    <button matButton="filled" type="button" (click)="store.run()" [disabled]="store.running()">
+      <mat-icon>play_arrow</mat-icon>{{ store.result() ? 'הרצה מחדש' : 'הרצה' }}
+    </button>
+  }
+</app-page-header>
+
+<app-loading-bar [active]="store.running() || store.loading()" [label]="store.running() ? 'מריץ את הבקרה' : 'טוען תוצאות'" />
+
+@if (store.control()?.definitionDescription; as sentence) {
+  <app-definition-description class="meaning" [sentence]="sentence" />
+}
+
+@if (store.notFound()) {
+  <app-empty-state icon="search_off" title="הבקרה לא נמצאה" [message]="store.error()">
+    <a matButton="filled" routerLink="/controls">לרשימת הבקרות</a>
+  </app-empty-state>
+} @else if (store.error() && !store.result()) {
+  <app-empty-state icon="error" title="הבקרה לא הורצה" [message]="store.error()">
+    <a matButton="tonal" [routerLink]="['/controls', id(), 'edit']">עריכת הבקרה</a>
+    <button matButton="filled" type="button" (click)="store.run()">נסו שוב</button>
+  </app-empty-state>
+} @else if (store.error()) {
+  <!-- results from before are still shown; say that the latest attempt failed -->
+  <p class="run-error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ store.error() }}</p>
+}
+
+@if (store.result(); as result) {
+  <section class="summary" aria-label="סיכום הריצה">
+    <div class="tile violations" [class.none]="result.violationCount === 0">
+      <span class="value">{{ result.violationCount | number }}</span>
+      <span class="label">רשומות חריגות</span>
+    </div>
+    <div class="tile">
+      <span class="value">{{ result.totalScanned | number }}</span>
+      <span class="label">{{ result.rootEntityName }} נבדקו</span>
+    </div>
+    <div class="tile">
+      <span class="value">{{ store.violationRate() | number: '1.0-1' }}%</span>
+      <span class="label">שיעור חריגות</span>
+    </div>
+    <div class="tile">
+      <span class="value">{{ result.durationMs / 1000 | number: '1.2-2' }} שניות</span>
+      <span class="label">זמן ריצה · {{ result.executedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+  </section>
+
+  @if (result.violationCount === 0) {
+    <app-empty-state icon="verified" title="לא נמצאו חריגות" message="כל הרשומות עומדות בתנאי הבקרה." />
+  } @else {
+    <mat-form-field class="search" appearance="outline" subscriptSizing="dynamic">
+      <mat-label>חיפוש בתוצאות</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput type="search" [attr.maxlength]="maxSearch()" [value]="search()" (input)="setSearch($event)" />
+    </mat-form-field>
+
+    <app-data-table
+      [columns]="result.columns"
+      [rows]="result.rows"
+      [total]="result.totalFiltered"
+      [page]="result.page"
+      [pageSize]="result.pageSize"
+      [sortKey]="store.request().sortKey ?? null"
+      [sortDescending]="store.request().sortDescending ?? false"
+      [filters]="store.request().filters ?? []"
+      [loading]="store.loading()"
+      [maxFilterLength]="maxSearch()"
+      emptyMessage="אין חריגות שמתאימות לחיפוש או לסינון."
+      (pageChange)="store.setPage($event.page, $event.pageSize)"
+      (sortChange)="store.setSort($event.key, $event.descending)"
+      (filtersChange)="store.setFilters($event)"
+    />
+  }
+}

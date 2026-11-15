@@ -1,0 +1,42 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  gap: 8px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
+
+.logo {
+  color: inherit;
+}
+
+.title {
+  font: var(--mat-sys-title-large);
+}
+
+.container {
+  flex: 1;
+}
+
+.sidenav {
+  width: 240px;
+}
+
+.content main {
+  padding: 24px;
+  max-width: 1280px;
+  margin-inline: auto;
+}
+
+@media (max-width: 599.98px) {
+  .content main {
+    padding: 16px;
+  }
+}

@@ -1,0 +1,105 @@
+<section class="group" [class.nested]="depth() > 1" [class.invalid]="errors().length > 0" [attr.aria-label]="depth() > 1 ? 'קבוצת תנאים' : 'תנאי הבקרה'">
+  @if (children().length > 1 || removable()) {
+    <header class="group-head">
+      @if (children().length > 1) {
+        @if (readonly()) {
+          <span class="logic-text">{{ group().logic === 'and' ? 'כל התנאים מתקיימים' : 'לפחות אחד מהתנאים מתקיים' }}</span>
+        } @else {
+          <mat-button-toggle-group
+            class="logic"
+            [value]="group().logic"
+            (change)="setLogic($event.value)"
+            hideSingleSelectionIndicator
+            aria-label="איך לחבר את התנאים"
+          >
+            <mat-button-toggle value="and">כל התנאים</mat-button-toggle>
+            <mat-button-toggle value="or">אחד מהתנאים</mat-button-toggle>
+          </mat-button-toggle-group>
+        }
+      }
+      @if (removable() && !readonly()) {
+        <button matButton type="button" class="remove-group" (click)="remove()"><mat-icon>delete</mat-icon>הסרת הקבוצה</button>
+      }
+    </header>
+  }
+
+  @for (error of errors(); track error.code + error.path) {
+    <p class="error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ error.message }}</p>
+  }
+
+  <ol class="children">
+    @for (child of children(); track $index; let i = $index) {
+      <li>
+        @if (i > 0) {
+          <span class="joiner">{{ joiner() }}</span>
+        }
+        @switch (child.type) {
+          @case ('condition') {
+            <app-condition-row
+              [entityKey]="entityKey()"
+              [node]="child"
+              [path]="childPaths()[i]"
+              [readonly]="readonly()"
+              [errors]="errorsFor()(childPaths()[i])"
+              (edit)="edit.emit($event)"
+            />
+          }
+          @case ('group') {
+            <app-condition-group
+              [group]="child"
+              [entityKey]="entityKey()"
+              [path]="childPaths()[i]"
+              [depth]="depth() + 1"
+              [insideRelated]="insideRelated()"
+              [readonly]="readonly()"
+              [errorsFor]="errorsFor()"
+              [canAddCondition]="canAddCondition()"
+              [removable]="true"
+              (edit)="edit.emit($event)"
+            />
+          }
+          @case ('related') {
+            <div class="related">
+              <app-related-row
+                [entityKey]="entityKey()"
+                [node]="child"
+                [path]="childPaths()[i]"
+                [readonly]="readonly()"
+                [errors]="errorsFor()(childPaths()[i])"
+                (edit)="edit.emit($event)"
+              />
+              @if (targetOf(child); as target) {
+                <app-condition-group
+                  [group]="child.where ?? emptyGroup"
+                  [entityKey]="target"
+                  [path]="wherePaths()[i]"
+                  [depth]="depth() + 2"
+                  [insideRelated]="true"
+                  [readonly]="readonly()"
+                  [errorsFor]="errorsFor()"
+                  [canAddCondition]="canAddCondition()"
+                  [emptyHint]="relatedHint(child)"
+                  (edit)="edit.emit($event)"
+                />
+              }
+            </div>
+          }
+        }
+      </li>
+    } @empty {
+      <li class="empty">{{ emptyHint() }}</li>
+    }
+  </ol>
+
+  @if (!readonly()) {
+    <footer class="add">
+      <button matButton type="button" [disabled]="!can().condition" (click)="addCondition()"><mat-icon>add</mat-icon>תנאי</button>
+      @if (can().group) {
+        <button matButton type="button" (click)="addGroup()" matTooltip="לשילוב 'וגם' עם 'או'"><mat-icon>add_box</mat-icon>קבוצת תנאים</button>
+      }
+      @if (can().related) {
+        <button matButton type="button" (click)="addRelated()" [matTooltip]="relatedExample()"><mat-icon>account_tree</mat-icon>תנאי יש / אין</button>
+      }
+    </footer>
+  }
+</section>

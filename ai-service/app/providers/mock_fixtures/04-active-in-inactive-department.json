@@ -1,0 +1,19 @@
+{
+  "example": "עובדים פעילים במחלקה לא פעילה",
+  "requests": [
+    "איתור עובדים פעילים המשויכים למחלקה שאינה פעילה."
+  ],
+  "response": {
+    "name": "עובדים פעילים במחלקה לא פעילה",
+    "description": "עובדים פעילים המשויכים למחלקה שאינה פעילה.",
+    "rootEntity": "employee",
+    "logic": "and",
+    "conditions": [
+      { "field": "isActive", "operator": "eq", "value": true },
+      { "field": "department.isActive", "operator": "eq", "value": false }
+    ],
+    "explanation": "חיפשתי עובדים פעילים שהמחלקה שאליה הם משויכים מסומנת כלא פעילה.",
+    "assumptions": ["'פעילים' = השדה 'עובד פעיל' שווה 'כן'.", "'מחלקה שאינה פעילה' = השדה 'מחלקה פעילה' של המחלקה שווה 'לא'."],
+    "unmappedTerms": []
+  }
+}

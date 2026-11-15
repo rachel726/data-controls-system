@@ -1,0 +1,112 @@
+### Data Controls API - try every endpoint (VS Code "REST Client" / Visual Studio / Rider).
+### Start the API first:  dotnet run --project backend/src/DataControls.Api   (or .\run-all.ps1)
+@api = http://localhost:5080/api
+
+### ---------- catalog (business terms only) ----------
+
+### Entities with their fields and relations
+GET {{api}}/catalog/entities
+
+### Operators with Hebrew labels and the data types they apply to
+GET {{api}}/catalog/operators
+
+### ---------- check a definition before saving ----------
+
+### Valid → the Hebrew sentence it means
+POST {{api}}/controls/validate
+Content-Type: application/json
+
+{
+  "schemaVersion": 1, "rootEntity": "employee",
+  "filter": { "type": "group", "logic": "and", "children": [
+    { "type": "condition", "field": "age", "operator": "lt", "operand": { "kind": "literal", "value": 18 } },
+    { "type": "condition", "field": "salary", "operator": "gt", "operand": { "kind": "literal", "value": 15000 } } ] }
+}
+
+### Invalid → errors pointing at the offending node
+POST {{api}}/controls/validate
+Content-Type: application/json
+
+{
+  "schemaVersion": 1, "rootEntity": "employee",
+  "filter": { "type": "group", "logic": "and", "children": [
+    { "type": "condition", "field": "age", "operator": "contains", "operand": { "kind": "literal", "value": "x" } } ] }
+}
+
+### ---------- manage controls ----------
+
+### List (optional search in name / description)
+GET {{api}}/controls?search=
+
+### Create
+# @name created
+POST {{api}}/controls
+Content-Type: application/json
+
+{
+  "name": "עובדים פעילים במחלקה לא פעילה (דוגמה)",
+  "description": "נוצרה מקובץ requests.http",
+  "definition": {
+    "schemaVersion": 1, "rootEntity": "employee",
+    "filter": { "type": "group", "logic": "and", "children": [
+      { "type": "condition", "field": "isActive", "operator": "eq", "operand": { "kind": "literal", "value": true } },
+      { "type": "condition", "field": "department.isActive", "operator": "eq", "operand": { "kind": "literal", "value": false } } ] }
+  }
+}
+
+### Read it back
+GET {{api}}/controls/{{created.response.body.id}}
+
+### Run it (records the outcome) → violations with a reason per record
+POST {{api}}/controls/{{created.response.body.id}}/run
+
+### Browse the results: search, column filter, sort, paging (no new run recorded)
+POST {{api}}/controls/{{created.response.body.id}}/results
+Content-Type: application/json
+
+{ "page": 1, "pageSize": 10, "search": "", "sortKey": "fullName", "sortDescending": false, "filters": [] }
+
+### Update (clears the last-run result)
+PUT {{api}}/controls/{{created.response.body.id}}
+Content-Type: application/json
+
+{
+  "name": "עובדים פעילים במחלקה לא פעילה (דוגמה, עודכן)",
+  "definition": {
+    "schemaVersion": 1, "rootEntity": "employee",
+    "filter": { "type": "group", "logic": "and", "children": [
+      { "type": "condition", "field": "department.isActive", "operator": "eq", "operand": { "kind": "literal", "value": false } } ] }
+  }
+}
+
+### Delete
+DELETE {{api}}/controls/{{created.response.body.id}}
+
+### ---------- errors (Hebrew ProblemDetails) ----------
+
+### 404 - unknown control
+GET {{api}}/controls/999999
+
+### 400 - missing name and definition
+POST {{api}}/controls
+Content-Type: application/json
+
+{ "name": "" }
+
+### 400 - unknown property is rejected (strict contract)
+POST {{api}}/controls
+Content-Type: application/json
+
+{ "name": "x", "sql": "DROP TABLE biz.Employees" }
+
+### Stage B - a control from free text (AI service mock on :8001); nothing is saved or run
+POST {{api}}/ai/suggest-control
+Content-Type: application/json
+
+{ "text": "מצא עובדים פעילים שגילם נמוך מ־18 ומשכורתם גבוהה מ־15,000 ש\"ח." }
+
+### Stage B - the AI invents a field: shown with the validation error, never run
+POST {{api}}/ai/suggest-control
+Content-Type: application/json
+
+{ "text": "דמה שגיאה" }

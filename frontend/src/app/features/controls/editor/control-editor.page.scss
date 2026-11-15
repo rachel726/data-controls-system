@@ -1,0 +1,73 @@
+// Name and "what to check" side by side (same height), the description below at full width; one column on phones.
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  align-items: start;
+}
+
+.details .description {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 599.98px) {
+  .details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.conditions {
+  display: grid;
+  gap: 16px;
+  margin-block-start: 24px; // clear of the two-line hint of "מה בודקים?" on phones
+
+  h2 {
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+// Narrow: the meaning above the conditions. Wide: conditions, with the meaning beside them in view while scrolling.
+.layout {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+
+.builder {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  .builder {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .meaning {
+    grid-column: 2;
+    position: sticky;
+    top: 16px;
+  }
+}
+
+.field-error {
+  color: var(--mat-sys-error);
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mat-sys-error);
+}
+
+.hint {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}

@@ -1,0 +1,130 @@
+@if (shape() !== 'none') {
+  <div class="value-input">
+    @if (mode() === 'field') {
+      <app-field-picker
+        label="השוואה לשדה"
+        [showTypeIcon]="false"
+        [showDescription]="false"
+        [entityKey]="entityKey()"
+        [value]="comparedField()"
+        [filter]="comparableFields()"
+        (valueChange)="setComparedField($event)"
+      />
+    } @else {
+      @switch (shape()) {
+        @case ('value') {
+          @switch (type()) {
+            @case ('boolean') {
+              <mat-button-toggle-group class="yes-no" [value]="scalar()" (change)="setScalar($event.value)" hideSingleSelectionIndicator aria-label="ערך">
+                <mat-button-toggle [value]="true">כן</mat-button-toggle>
+                <mat-button-toggle [value]="false">לא</mat-button-toggle>
+              </mat-button-toggle-group>
+            }
+            @case ('enum') {
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>ערך</mat-label>
+                <mat-select [value]="scalar()" (selectionChange)="setScalar($event.value)">
+                  @for (option of field().field.allowedValues; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            @case ('date') {
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>תאריך</mat-label>
+                <input matInput [matDatepicker]="picker" [value]="toDate(scalar())" (dateChange)="setDate($event.value)" />
+                <mat-datepicker-toggle matIconSuffix [for]="picker" />
+                <mat-datepicker #picker />
+              </mat-form-field>
+            }
+            @default {
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>ערך</mat-label>
+                <input
+                  matInput
+                  [type]="type() === 'text' ? 'text' : 'number'"
+                  [attr.step]="type() === 'integer' ? 1 : null"
+                  [attr.maxlength]="type() === 'text' ? maxTextLength() : null"
+                  [value]="scalar() ?? ''"
+                  (input)="setText($event)"
+                />
+                @if (field().field.unit; as unit) {
+                  <span matTextSuffix>{{ unit }}</span>
+                }
+              </mat-form-field>
+            }
+          }
+        }
+
+        @case ('range') {
+          <div class="range">
+            @for (index of rangeIndexes; track index) {
+              @if (type() === 'date') {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ index === 0 ? 'מתאריך' : 'עד תאריך' }}</mat-label>
+                  <input matInput [matDatepicker]="rangePicker" [value]="toDate(items()[index])" (dateChange)="setRangeDate(index, $event.value)" />
+                  <mat-datepicker-toggle matIconSuffix [for]="rangePicker" />
+                  <mat-datepicker #rangePicker />
+                </mat-form-field>
+              } @else {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ index === 0 ? 'מ-' : 'עד' }}</mat-label>
+                  <input matInput type="number" [value]="items()[index] ?? ''" (input)="setRangeText(index, $event)" />
+                  @if (field().field.unit; as unit) {
+                    <span matTextSuffix>{{ unit }}</span>
+                  }
+                </mat-form-field>
+              }
+            }
+          </div>
+        }
+
+        @case ('list') {
+          @if (type() === 'enum') {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>ערכים</mat-label>
+              <mat-select multiple [value]="items()" (selectionChange)="setList($event.value)">
+                @for (option of field().field.allowedValues; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>ערכים</mat-label>
+              <mat-chip-grid #chips aria-label="ערכים">
+                @for (item of items(); track item) {
+                  <mat-chip-row (removed)="removeItem(item)">
+                    {{ labelOf(item) }}
+                    <button matChipRemove [attr.aria-label]="'הסרת ' + labelOf(item)"><mat-icon>cancel</mat-icon></button>
+                  </mat-chip-row>
+                }
+                <input
+                  placeholder="הקלידו ערך ולחצו Enter"
+                  [attr.maxlength]="type() === 'text' ? maxTextLength() : null"
+                  [matChipInputFor]="chips"
+                  [matChipInputSeparatorKeyCodes]="separatorKeys"
+                  (matChipInputTokenEnd)="addItem($event)"
+                />
+              </mat-chip-grid>
+            </mat-form-field>
+          }
+        }
+      }
+    }
+
+    @if (canCompareToField()) {
+      <mat-button-toggle-group
+        class="mode"
+        [value]="mode()"
+        (change)="setMode($event.value)"
+        hideSingleSelectionIndicator
+        aria-label="השוואה לערך או לשדה אחר"
+      >
+        <mat-button-toggle value="literal">ערך</mat-button-toggle>
+        <mat-button-toggle value="field">שדה אחר</mat-button-toggle>
+      </mat-button-toggle-group>
+    }
+  </div>
+}

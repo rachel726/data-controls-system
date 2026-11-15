@@ -1,0 +1,18 @@
+{
+  "example": "הדגמת תשובה שגויה של ה-AI",
+  "requests": [
+    "דמה שגיאה"
+  ],
+  "response": {
+    "name": "הדגמת שגיאה: שדה שאינו קיים",
+    "description": "תשובה שמפנה לשדה שאינו קיים בקטלוג - מדגימה שההצעה נבדקת לפני שהיא מוצגת לאישור.",
+    "rootEntity": "employee",
+    "logic": "and",
+    "conditions": [
+      { "field": "bonus", "operator": "gt", "value": 10000 }
+    ],
+    "explanation": "תשובה לדוגמה שבה ה-AI 'המציא' שדה בשם bonus.",
+    "assumptions": [],
+    "unmappedTerms": []
+  }
+}

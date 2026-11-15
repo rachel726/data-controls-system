@@ -1,0 +1,111 @@
+@if (!isMobile()) {
+  <div class="table-scroll" [class.busy]="loading()" [attr.aria-busy]="loading()">
+    <table
+      mat-table
+      [dataSource]="rows()"
+      matSort
+      [matSortActive]="sortKey() ?? ''"
+      [matSortDirection]="sortKey() ? (sortDescending() ? 'desc' : 'asc') : ''"
+      (matSortChange)="onSort($event)"
+    >
+      @for (column of columns(); track column.key) {
+        <ng-container [matColumnDef]="column.key">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header [class.condition]="column.isConditionField">
+            {{ column.displayName }}
+          </th>
+          <!-- bdi: each value keeps its own direction (phone, e-mail, code) inside the RTL page -->
+          <td mat-cell *matCellDef="let row" [class.condition]="column.isConditionField"><bdi>{{ row.values[column.key] }}</bdi></td>
+        </ng-container>
+
+        <ng-container [matColumnDef]="'filter:' + column.key">
+          <th mat-header-cell *matHeaderCellDef class="filter-cell">
+            @switch (column.dataType) {
+              @case ('boolean') {
+                <select [value]="filterValue(column.key)" (change)="setFilter(column.key, inputValue($event))" [attr.aria-label]="'סינון ' + column.displayName">
+                  <option value="">הכל</option>
+                  <option value="true">כן</option>
+                  <option value="false">לא</option>
+                </select>
+              }
+              @case ('enum') {
+                <select [value]="filterValue(column.key)" (change)="setFilter(column.key, inputValue($event))" [attr.aria-label]="'סינון ' + column.displayName">
+                  <option value="">הכל</option>
+                  @for (option of column.allowedValues; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              }
+              @case ('date') {
+                <input type="date" [value]="filterValue(column.key)" (change)="setFilter(column.key, inputValue($event))" [attr.aria-label]="'סינון ' + column.displayName" />
+              }
+              @default {
+                <input
+                  [type]="column.dataType === 'text' ? 'search' : 'number'"
+                  [value]="filterValue(column.key)"
+                  (change)="setFilter(column.key, inputValue($event))"
+                  [attr.maxlength]="column.dataType === 'text' ? maxFilterLength() : null"
+                  [attr.placeholder]="column.dataType === 'text' ? 'מכיל…' : 'שווה ל…'"
+                  [attr.aria-label]="'סינון ' + column.displayName"
+                />
+              }
+            }
+          </th>
+        </ng-container>
+      }
+
+      <!-- pinned at the table's end: the reason stays in view while wide data scrolls under it -->
+      <ng-container [matColumnDef]="reasonsColumn" stickyEnd>
+        <th mat-header-cell *matHeaderCellDef class="reasons-header">למה זו חריגה?</th>
+        <td mat-cell *matCellDef="let row" class="reasons">
+          <ul>
+            @for (reason of row.reasons; track $index) {
+              <li><mat-icon aria-hidden="true">error_outline</mat-icon><span class="reason">{{ reason }}</span></li>
+            }
+          </ul>
+        </td>
+      </ng-container>
+      <ng-container [matColumnDef]="'filter:' + reasonsColumn" stickyEnd>
+        <th mat-header-cell *matHeaderCellDef class="filter-cell"></th>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+      <tr mat-header-row *matHeaderRowDef="filterColumns()" class="filter-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+      <tr class="no-data" *matNoDataRow>
+        <td [attr.colspan]="displayedColumns().length"><mat-icon aria-hidden="true">search_off</mat-icon>{{ emptyMessage() }}</td>
+      </tr>
+    </table>
+  </div>
+} @else {
+  <ul class="cards" aria-label="רשומות חריגות" [class.busy]="loading()" [attr.aria-busy]="loading()">
+    @for (row of rows(); track row.recordId) {
+      <li class="card">
+        <h3>{{ row.title }}</h3>
+        <ul class="reasons">
+          @for (reason of row.reasons; track $index) {
+            <li><mat-icon aria-hidden="true">error_outline</mat-icon><span class="reason">{{ reason }}</span></li>
+          }
+        </ul>
+        <dl>
+          @for (column of cardColumns(); track column.key) {
+            <div [class.condition]="column.isConditionField">
+              <dt>{{ column.displayName }}</dt>
+              <dd><bdi>{{ row.values[column.key] }}</bdi></dd>
+            </div>
+          }
+        </dl>
+      </li>
+    } @empty {
+      <li class="no-data"><mat-icon aria-hidden="true">search_off</mat-icon>{{ emptyMessage() }}</li>
+    }
+  </ul>
+}
+
+<mat-paginator
+  [length]="total() ?? 0"
+  [pageIndex]="page() - 1"
+  [pageSize]="pageSize()"
+  [pageSizeOptions]="pageSizes"
+  [showFirstLastButtons]="!isMobile()"
+  (page)="onPage($event)"
+/>

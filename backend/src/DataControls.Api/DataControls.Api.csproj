@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- XML doc comments feed the OpenAPI document; not every member needs one. -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataControls.Application\DataControls.Application.csproj" />
+    <ProjectReference Include="..\DataControls.Infrastructure\DataControls.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

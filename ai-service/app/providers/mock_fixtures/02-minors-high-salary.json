@@ -1,0 +1,18 @@
+{
+  "requests": [
+    "איתור עובדים שגילם נמוך מ־18 ושכרם גבוה מ־15,000 ש\"ח."
+  ],
+  "response": {
+    "name": "עובדים מתחת לגיל 18 עם שכר גבוה",
+    "description": "עובדים שגילם נמוך מ-18 ושכרם החודשי גבוה מ-15,000 ₪.",
+    "rootEntity": "employee",
+    "logic": "and",
+    "conditions": [
+      { "field": "age", "operator": "lt", "value": 18 },
+      { "field": "salary", "operator": "gt", "value": 15000 }
+    ],
+    "explanation": "חיפשתי עובדים שגילם קטן מ-18 וגם שכרם החודשי גבוה מ-15,000 ₪.",
+    "assumptions": ["'שכר' = 'שכר חודשי' (ברוטו), ב-₪."],
+    "unmappedTerms": []
+  }
+}

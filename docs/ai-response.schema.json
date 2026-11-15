@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ai-response.schema.json",
+  "$defs": {
+    "SuggestedCondition": {
+      "additionalProperties": false,
+      "description": "One condition: `{\"field\": \"age\", \"operator\": \"lt\", \"value\": 18}`, a range / list as an array,\nor a comparison with another field:\n`{\"field\": \"terminationDate\", \"operator\": \"lt\", \"compareToField\": \"hireDate\"}`.\nField paths may walk relations: \"department.isActive\".",
+      "properties": {
+        "field": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "eq",
+            "neq",
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "between",
+            "in",
+            "contains",
+            "isEmpty",
+            "isNotEmpty"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "compareToField": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Comparetofield"
+        }
+      },
+      "required": [
+        "field",
+        "operator"
+      ],
+      "title": "SuggestedCondition",
+      "type": "object"
+    },
+    "SuggestedGroup": {
+      "additionalProperties": false,
+      "description": "Conditions joined by their own logic, e.g. \"email empty OR phone empty\" inside an AND.",
+      "properties": {
+        "logic": {
+          "enum": [
+            "and",
+            "or"
+          ],
+          "title": "Logic",
+          "type": "string"
+        },
+        "conditions": {
+          "items": {
+            "$ref": "#/$defs/SuggestedCondition"
+          },
+          "minItems": 1,
+          "title": "Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "logic",
+        "conditions"
+      ],
+      "title": "SuggestedGroup",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The AI's proposal. A request it could not map has no conditions,\nand lists the terms it could not map in `unmappedTerms`.",
+  "properties": {
+    "name": {
+      "default": "",
+      "maxLength": 200,
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "rootEntity": {
+      "anyOf": [
+        {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rootentity"
+    },
+    "logic": {
+      "default": "and",
+      "enum": [
+        "and",
+        "or"
+      ],
+      "title": "Logic",
+      "type": "string"
+    },
+    "conditions": {
+      "items": {
+        "$ref": "#/$defs/SuggestedCondition"
+      },
+      "title": "Conditions",
+      "type": "array"
+    },
+    "groups": {
+      "description": "Optional, one nesting level - enough for \"A and (B or C)\".",
+      "items": {
+        "$ref": "#/$defs/SuggestedGroup"
+      },
+      "title": "Groups",
+      "type": "array"
+    },
+    "explanation": {
+      "default": "",
+      "description": "How the request was understood, in the user's language.",
+      "maxLength": 2000,
+      "title": "Explanation",
+      "type": "string"
+    },
+    "assumptions": {
+      "items": {
+        "maxLength": 500,
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "unmappedTerms": {
+      "items": {
+        "maxLength": 200,
+        "type": "string"
+      },
+      "title": "Unmappedterms",
+      "type": "array"
+    }
+  },
+  "title": "ControlSuggestion",
+  "type": "object"
+}

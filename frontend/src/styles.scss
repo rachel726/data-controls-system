@@ -1,0 +1,51 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Heebo,
+      density: -2, // 48px boxes: lighter, still a comfortable touch target
+    )
+  );
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* Icons that express direction (arrows, chevrons) must be mirrored in RTL. */
+[dir='rtl'] .mirror-rtl {
+  transform: scaleX(-1);
+}
+
+/*
+ * Inside a condition row every box takes the width of its grid cell. Material gives a form field's inner area a
+ * fixed default width (180px), which made a range ("מ-" / "עד") or a compared field wider than its cell, under the
+ * remove button.
+ */
+app-condition-row .mat-mdc-form-field-infix {
+  width: auto;
+  min-width: 0;
+}

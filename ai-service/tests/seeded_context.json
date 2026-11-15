@@ -1,0 +1,391 @@
+{
+ "entities": [
+  {
+   "key": "employee",
+   "displayName": "עובד",
+   "displayNamePlural": "עובדים",
+   "description": "עובדי הארגון - כולל עובדים שסיימו את עבודתם.",
+   "fields": [
+    {
+     "key": "employeeNumber",
+     "displayName": "מספר עובד",
+     "description": "מספר העובד הייחודי בארגון.",
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "fullName",
+     "displayName": "שם מלא",
+     "description": "שם פרטי ושם משפחה.",
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "firstName",
+     "displayName": "שם פרטי",
+     "description": null,
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "lastName",
+     "displayName": "שם משפחה",
+     "description": null,
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "isActive",
+     "displayName": "עובד פעיל",
+     "description": "האם העובד מועסק כיום בארגון.",
+     "dataType": "boolean",
+     "allowedValues": [],
+     "unit": null,
+     "trueText": "פעיל",
+     "falseText": "אינו פעיל"
+    },
+    {
+     "key": "age",
+     "displayName": "גיל",
+     "description": "גיל העובד בשנים מלאות, מחושב מתאריך הלידה.",
+     "dataType": "integer",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "birthDate",
+     "displayName": "תאריך לידה",
+     "description": null,
+     "dataType": "date",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "email",
+     "displayName": "דואר אלקטרוני",
+     "description": "כתובת הדואר האלקטרוני של העובד. שדה חובה לעובד פעיל.",
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "phone",
+     "displayName": "טלפון",
+     "description": "מספר הטלפון של העובד. שדה חובה לעובד פעיל.",
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "hireDate",
+     "displayName": "תאריך תחילת העסקה",
+     "description": null,
+     "dataType": "date",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "terminationDate",
+     "displayName": "תאריך סיום העסקה",
+     "description": "ריק לעובד שעדיין מועסק.",
+     "dataType": "date",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "salary",
+     "displayName": "שכר חודשי",
+     "description": "שכר ברוטו חודשי.",
+     "dataType": "decimal",
+     "allowedValues": [],
+     "unit": "₪"
+    }
+   ],
+   "relations": [
+    {
+     "key": "department",
+     "displayName": "מחלקה",
+     "description": "המחלקה שבה העובד משובץ.",
+     "targetEntity": "department",
+     "cardinality": "manyToOne"
+    },
+    {
+     "key": "manager",
+     "displayName": "מנהל ישיר",
+     "description": "העובד שאליו העובד כפוף.",
+     "targetEntity": "employee",
+     "cardinality": "manyToOne"
+    },
+    {
+     "key": "directReports",
+     "displayName": "עובדים כפופים",
+     "description": "העובדים שהעובד מנהל ישירות.",
+     "targetEntity": "employee",
+     "cardinality": "oneToMany"
+    }
+   ]
+  },
+  {
+   "key": "department",
+   "displayName": "מחלקה",
+   "displayNamePlural": "מחלקות",
+   "description": "היחידות הארגוניות. מחלקה לא פעילה היא מחלקה שנסגרה.",
+   "fields": [
+    {
+     "key": "name",
+     "displayName": "שם המחלקה",
+     "description": null,
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "code",
+     "displayName": "קוד מחלקה",
+     "description": "קוד מקוצר של המחלקה.",
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "isActive",
+     "displayName": "מחלקה פעילה",
+     "description": "האם המחלקה פעילה. מחלקה לא פעילה היא מחלקה שנסגרה.",
+     "dataType": "boolean",
+     "allowedValues": [],
+     "unit": null,
+     "trueText": "פעילה",
+     "falseText": "אינה פעילה"
+    }
+   ],
+   "relations": [
+    {
+     "key": "employees",
+     "displayName": "עובדים",
+     "description": "העובדים המשובצים במחלקה.",
+     "targetEntity": "employee",
+     "cardinality": "oneToMany"
+    },
+    {
+     "key": "projects",
+     "displayName": "פרויקטים",
+     "description": "הפרויקטים שבאחריות המחלקה.",
+     "targetEntity": "project",
+     "cardinality": "oneToMany"
+    }
+   ]
+  },
+  {
+   "key": "project",
+   "displayName": "פרויקט",
+   "displayNamePlural": "פרויקטים",
+   "description": "פרויקטים של הארגון, כל אחד באחריות מחלקה אחת.",
+   "fields": [
+    {
+     "key": "name",
+     "displayName": "שם הפרויקט",
+     "description": null,
+     "dataType": "text",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "status",
+     "displayName": "סטטוס",
+     "description": "שלב הפרויקט.",
+     "dataType": "enum",
+     "allowedValues": [
+      {
+       "value": "Planned",
+       "label": "מתוכנן"
+      },
+      {
+       "value": "Active",
+       "label": "פעיל"
+      },
+      {
+       "value": "Completed",
+       "label": "הסתיים"
+      },
+      {
+       "value": "Cancelled",
+       "label": "בוטל"
+      }
+     ],
+     "unit": null
+    },
+    {
+     "key": "startDate",
+     "displayName": "תאריך התחלה",
+     "description": null,
+     "dataType": "date",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "endDate",
+     "displayName": "תאריך סיום",
+     "description": "ריק לפרויקט שטרם הסתיים.",
+     "dataType": "date",
+     "allowedValues": [],
+     "unit": null
+    },
+    {
+     "key": "budget",
+     "displayName": "תקציב",
+     "description": null,
+     "dataType": "decimal",
+     "allowedValues": [],
+     "unit": "₪"
+    }
+   ],
+   "relations": [
+    {
+     "key": "department",
+     "displayName": "מחלקה אחראית",
+     "description": "המחלקה האחראית על הפרויקט.",
+     "targetEntity": "department",
+     "cardinality": "manyToOne"
+    }
+   ]
+  }
+ ],
+ "operators": [
+  {
+   "key": "eq",
+   "label": "שווה ל",
+   "allowedTypes": [
+    "text",
+    "integer",
+    "decimal",
+    "date",
+    "boolean",
+    "enum"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": true
+  },
+  {
+   "key": "neq",
+   "label": "שונה מ",
+   "allowedTypes": [
+    "text",
+    "integer",
+    "decimal",
+    "date",
+    "boolean",
+    "enum"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": true
+  },
+  {
+   "key": "gt",
+   "label": "גדול מ",
+   "allowedTypes": [
+    "integer",
+    "decimal",
+    "date"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": true
+  },
+  {
+   "key": "gte",
+   "label": "גדול או שווה ל",
+   "allowedTypes": [
+    "integer",
+    "decimal",
+    "date"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": true
+  },
+  {
+   "key": "lt",
+   "label": "קטן מ",
+   "allowedTypes": [
+    "integer",
+    "decimal",
+    "date"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": true
+  },
+  {
+   "key": "lte",
+   "label": "קטן או שווה ל",
+   "allowedTypes": [
+    "integer",
+    "decimal",
+    "date"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": true
+  },
+  {
+   "key": "between",
+   "label": "בין",
+   "allowedTypes": [
+    "integer",
+    "decimal",
+    "date"
+   ],
+   "shape": "range",
+   "allowsFieldOperand": false
+  },
+  {
+   "key": "in",
+   "label": "אחד מ",
+   "allowedTypes": [
+    "text",
+    "integer",
+    "enum"
+   ],
+   "shape": "list",
+   "allowsFieldOperand": false
+  },
+  {
+   "key": "contains",
+   "label": "מכיל",
+   "allowedTypes": [
+    "text"
+   ],
+   "shape": "value",
+   "allowsFieldOperand": false
+  },
+  {
+   "key": "isEmpty",
+   "label": "ריק",
+   "allowedTypes": [
+    "text",
+    "integer",
+    "decimal",
+    "date",
+    "boolean",
+    "enum"
+   ],
+   "shape": "none",
+   "allowsFieldOperand": false
+  },
+  {
+   "key": "isNotEmpty",
+   "label": "לא ריק",
+   "allowedTypes": [
+    "text",
+    "integer",
+    "decimal",
+    "date",
+    "boolean",
+    "enum"
+   ],
+   "shape": "none",
+   "allowsFieldOperand": false
+  }
+ ],
+ "maxRelationHops": 1
+}

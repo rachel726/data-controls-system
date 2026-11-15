@@ -1,0 +1,19 @@
+[project]
+name = "data-controls-ai-service"
+version = "0.1.0"
+description = "AI gateway: turns a free-text control request + business schema context into a control suggestion."
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+# Hebrew text is the product language: Hebrew letters are not "confusable" Latin look-alikes here.
+ignore = ["RUF001", "RUF002", "RUF003"]

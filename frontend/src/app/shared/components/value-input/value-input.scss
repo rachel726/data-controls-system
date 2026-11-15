@@ -1,0 +1,23 @@
+// The value box first - aligned with the field and operator boxes - and the value / other-field switch, small, below it.
+.value-input {
+  display: grid;
+  gap: 4px;
+}
+
+// A yes/no value is as tall as the other boxes in the row (minus its 1px border above and below), at any density.
+.yes-no {
+  --mat-button-toggle-height: calc(var(--mat-form-field-container-height, 56px) - 2px);
+  justify-self: start;
+}
+
+.mode {
+  --mat-button-toggle-height: 28px;
+  --mat-button-toggle-label-text-size: 0.8125rem;
+  justify-self: start;
+}
+
+.range {
+  // "מ-" above "עד", each as wide as the value column - two boxes side by side cut a date short.
+  display: grid;
+  gap: 8px;
+}

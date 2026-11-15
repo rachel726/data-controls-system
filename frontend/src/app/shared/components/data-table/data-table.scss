@@ -1,0 +1,150 @@
+.table-scroll {
+  overflow: auto;
+  max-height: 70vh;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+}
+
+// Values and headers stay on one line (a phone number must not break at its hyphen); the table scrolls instead.
+th.mat-mdc-header-cell,
+td.mat-mdc-cell {
+  white-space: nowrap;
+}
+
+td.reasons {
+  white-space: normal;
+  min-width: 220px;
+  background: var(--mat-sys-surface); // pinned: covers the columns scrolling under it
+  border-inline-start: 1px solid var(--mat-sys-outline-variant);
+}
+
+th.condition {
+  color: var(--mat-sys-primary);
+}
+
+td.condition {
+  font-weight: 500;
+  background: color-mix(in srgb, var(--mat-sys-primary) 6%, transparent);
+}
+
+// The filter row scrolls with the table (only the header row is sticky). No `top` here: it took effect only on the
+// pinned "למה זו חריגה?" cell, which then sat lower than the rest of the row.
+.filter-row th {
+  background: var(--mat-sys-surface-container-low);
+}
+
+.filter-cell {
+  padding-block: 4px;
+
+  input,
+  select {
+    width: 100%;
+    min-width: 80px;
+    padding: 4px 6px;
+    font: var(--mat-sys-body-small);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 6px;
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.reasons-header {
+  min-width: 260px;
+}
+
+.reasons ul,
+ul.reasons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.reasons li {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  color: var(--mat-sys-error);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+}
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 12px;
+}
+
+.card {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-lowest);
+  display: grid;
+  gap: 8px;
+
+  h3 {
+    font: var(--mat-sys-title-medium);
+  }
+
+  dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  dt {
+    font: var(--mat-sys-label-small);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere; // a long e-mail wraps inside the card
+  }
+
+  .condition dd {
+    font-weight: 500;
+    color: var(--mat-sys-primary);
+  }
+}
+
+// Loading keeps the current rows in place (no jump), just dimmed.
+.busy {
+  opacity: 0.55;
+  transition: opacity 150ms ease-in;
+}
+
+.no-data td,
+li.no-data {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: normal;
+
+  mat-icon {
+    vertical-align: middle;
+    margin-inline-end: 6px;
+  }
+}
+
+li.no-data {
+  grid-column: 1 / -1;
+  border: 1px dashed var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
