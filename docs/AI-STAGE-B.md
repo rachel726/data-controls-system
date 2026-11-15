@@ -30,7 +30,8 @@ sequenceDiagram
     P-->>N: suggestion
     N->>N: translate into a Stage A control + the same validator
     N-->>U: what was understood, assumptions, the control
-    U->>N: edit / approve and save / approve and run
+    Note over U: nothing is saved yet — the user may open it in the editor first
+    U->>N: approve → save (and run)
 ```
 
 | Requirement | Where |
